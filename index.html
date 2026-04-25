@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MATS 29 - TERMINAL IA</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+    <title>CAR MATS 29 - CONFIGURADOR IA</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #39ff14; --premium: #ffd700; --dark: rgba(0,0,0,0.98); }
-        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 5px; }
-        .app-card { background: var(--dark); border: 2px solid var(--neon); border-radius: 20px; padding: 18px; box-shadow: 0 0 25px rgba(57,255,20,0.3); max-width: 450px; margin: 0 auto; }
-        .logo { font-family: 'Rajdhani'; font-size: 26px; color: var(--neon); text-align: center; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
-        .q-title { color: var(--neon); font-family: 'Rajdhani'; font-size: 19px; text-align: center; margin-bottom: 15px; }
-        .btn-opt { width: 100%; padding: 14px; margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--neon); background: transparent; color: #fff; font-weight: 600; cursor: pointer; text-align: left; font-size: 14px; }
+        :root { --neon: #39ff14; --premium: #ffd700; --dark: #000; }
+        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 10px; }
+        .card { background: rgba(0,0,0,0.95); border: 2px solid var(--neon); border-radius: 20px; padding: 20px; box-shadow: 0 0 25px rgba(57,255,20,0.2); max-width: 450px; margin: 0 auto; text-align: center; }
+        .logo { font-family: 'Rajdhani'; font-size: 26px; color: var(--neon); letter-spacing: 3px; margin-bottom: 20px; text-transform: uppercase; }
+        .btn-main { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Rajdhani'; font-weight: 700; font-size: 18px; cursor: pointer; background: var(--neon); color: #000; text-transform: uppercase; margin-top: 10px; }
+        .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--neon); background: transparent; color: #fff; font-weight: 600; cursor: pointer; text-align: left; }
         .btn-premium { border-color: var(--premium); color: var(--premium); background: rgba(255,215,0,0.05); }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .input-text { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--neon); background: #0a0a0a; color: #fff; margin-bottom: 8px; font-size: 13px; box-sizing: border-box; }
-        .full { grid-column: span 2; }
-        .btn-final { background: var(--neon); color: #000; border: none; font-weight: 700; width: 100%; padding: 18px; border-radius: 12px; font-size: 17px; margin-top: 10px; cursor: pointer; text-transform: uppercase; }
-        .scanner-wrap { position: relative; width: 100%; height: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--neon); }
-        .scan-bar { width: 100%; height: 3px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scanning 2s linear infinite; }
-        @keyframes scanning { 0% { top: 0%; } 100% { top: 100%; } }
+        .input-f { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--neon); background: #111; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
+        .scanner { position: relative; width: 100%; height: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--neon); margin: 15px 0; }
+        .line { width: 100%; height: 3px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
@@ -36,14 +33,14 @@
             const [form, setForm] = useState({});
             const fileInput = useRef();
 
-            const onFileSelect = (e) => {
+            const handleFile = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     setImage(ev.target.result);
                     setStep('scanning');
-                    setTimeout(() => setStep('q1'), 3000); // Simulación de escaneo veloz
+                    setTimeout(() => setStep('q1'), 3500); // Tiempo para el efecto visual
                 };
                 reader.readAsDataURL(file);
             };
@@ -53,43 +50,38 @@
                 setStep(nextStep);
             };
 
-            const sendWA = (payMethod) => {
-                const text = `PEDIDO CAR MATS 29:
-                - Detalle: ${form.seats}, ${form.usage}
-                - Envío: ${form.shipping}
-                - Cliente: ${form.name} ${form.last}
-                - Dirección: ${form.addr}, ${form.city}, ${form.country}
-                - Pago: ${payMethod}`;
-                window.open(`https://wa.me/50764426565?text=${encodeURIComponent(text)}`);
+            const finalize = (pay) => {
+                const msg = `PEDIDO CAR MATS 29: ${form.seats}, ${form.shipping}, Cliente: ${form.name}, Pago: ${pay}`;
+                window.open(`https://wa.me/50764426565?text=${encodeURIComponent(msg)}`);
             };
 
             return (
-                <div className="app-card">
+                <div className="card">
                     <div className="logo">CAR MATS 29</div>
 
                     {step === 'home' && (
-                        <div style={{textAlign:'center'}}>
-                            <div style={{fontSize: '50px', marginBottom: '10px'}}>📸</div>
-                            <div className="q-title">ESCANEO IA DE VEHÍCULO</div>
-                            <p style={{fontSize:'13px', color:'#888', marginBottom:'20px'}}>Sube una foto para identificar tu modelo y personalizar tus alfombras 5D.</p>
-                            <button className="btn-final" onClick={() => fileInput.current.click()}>SELECCIONAR FOTO</button>
-                            <input type="file" ref={fileInput} hidden accept="image/*" onChange={onFileSelect} />
+                        <div>
+                            <div style={{fontSize: '50px', marginBottom: '15px'}}>📸</div>
+                            <h2 style={{color: 'var(--neon)', fontSize: '20px'}}>ESCANEO IA DE VEHÍCULO</h2>
+                            <p style={{fontSize: '14px', color: '#888', marginBottom: '20px'}}>Sube una foto para identificar tu modelo y personalizar tus alfombras 5D.</p>
+                            <button className="btn-main" onClick={() => fileInput.current.click()}>SELECCIONAR FOTO</button>
+                            <input type="file" ref={fileInput} hidden accept="image/*" onChange={handleFile} />
                         </div>
                     )}
 
                     {step === 'scanning' && (
-                        <div style={{textAlign:'center'}}>
-                            <div className="q-title">ANALIZANDO VEHÍCULO...</div>
-                            <div className="scanner-wrap">
+                        <div>
+                            <h2 style={{color: 'var(--neon)'}}>ANALIZANDO...</h2>
+                            <div className="scanner">
                                 <img src={image} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                                <div className="scan-bar"></div>
+                                <div className="line"></div>
                             </div>
                         </div>
                     )}
 
                     {step === 'q1' && (
                         <div>
-                            <div className="q-title">¿Capacidad de Asientos?</div>
+                            <h3 style={{color: 'var(--neon)'}}>¿Capacidad de Asientos?</h3>
                             <button className="btn-opt" onClick={()=>next('seats', '2 Asientos', 'q2')}>2 Pasajeros</button>
                             <button className="btn-opt" onClick={()=>next('seats', '5 Asientos ($290+)', 'q2')}>5 Pasajeros ($290+)</button>
                             <button className="btn-opt" onClick={()=>next('seats', '7 Asientos', 'q2')}>7 Pasajeros</button>
@@ -99,16 +91,7 @@
 
                     {step === 'q2' && (
                         <div>
-                            <div className="q-title">¿Uso del Vehículo?</div>
-                            <button className="btn-opt" onClick={()=>next('usage', 'Familiar', 'q3')}>Familiar / Niños / Mascotas</button>
-                            <button className="btn-opt" onClick={()=>next('usage', 'Trabajo', 'q3')}>Trabajo / Carga</button>
-                            <button className="btn-opt" onClick={()=>next('usage', 'Mixto', 'q3')}>Ambos</button>
-                        </div>
-                    )}
-
-                    {step === 'q3' && (
-                        <div>
-                            <div className="q-title">Método de Envío</div>
+                            <h3 style={{color: 'var(--neon)'}}>Método de Envío</h3>
                             <button className="btn-opt btn-premium" onClick={()=>next('shipping', 'PREMIUM GRATIS', 'address')}>🚀 PREMIUM GRATIS (5-10 días)</button>
                             <button className="btn-opt" onClick={()=>next('shipping', 'Aéreo $10/kg', 'address')}>✈️ AÉREO (5-10 días)</button>
                             <button className="btn-opt" onClick={()=>next('shipping', 'Marítimo $4.40/kg', 'address')}>🚢 MARÍTIMO (25-30 días)</button>
@@ -116,30 +99,28 @@
                     )}
 
                     {step === 'address' && (
-                        <div className="input-grid">
-                            <div className="q-title full">Datos de Entrega</div>
-                            <input className="input-text" placeholder="Nombre" onChange={e=>setForm({...form, name: e.target.value})} />
-                            <input className="input-text" placeholder="Apellido" onChange={e=>setForm({...form, last: e.target.value})} />
-                            <input className="input-text" placeholder="País" onChange={e=>setForm({...form, country: e.target.value})} />
-                            <input className="input-text" placeholder="Ciudad" onChange={e=>setForm({...form, city: e.target.value})} />
-                            <input className="input-text full" placeholder="Dirección Exacta" onChange={e=>setForm({...form, addr: e.target.value})} />
-                            <button className="btn-final full" onClick={()=>setStep('pay')}>CONTINUAR</button>
+                        <div>
+                            <h3 style={{color: 'var(--neon)'}}>Datos de Envío</h3>
+                            <input className="input-f" placeholder="Nombre completo" onChange={e=>setForm({...form, name: e.target.value})} />
+                            <input className="input-f" placeholder="DNI / Identificación" onChange={e=>setForm({...form, dni: e.target.value})} />
+                            <input className="input-f" placeholder="País / Ciudad" onChange={e=>setForm({...form, city: e.target.value})} />
+                            <input className="input-f" placeholder="Dirección exacta" onChange={e=>setForm({...form, addr: e.target.value})} />
+                            <button className="btn-main" onClick={()=>setStep('pay')}>CONTINUAR</button>
                         </div>
                     )}
 
                     {step === 'pay' && (
-                        <div style={{textAlign:'center'}}>
-                            <div className="q-title">Finalizar Pedido</div>
-                            <button className="btn-final" style={{background:'#fff'}} onClick={()=>sendWA('TARJETA/ACH')}>💳 PAGO DIGITAL</button>
-                            <button className="btn-final" onClick={()=>sendWA('WESTERN UNION')}>🏦 WESTERN UNION</button>
+                        <div>
+                            <h3 style={{color: 'var(--neon)'}}>Finalizar Pedido</h3>
+                            <button className="btn-main" style={{background:'#fff'}} onClick={()=>finalize('PAGO DIGITAL')}>💳 PAGO DIGITAL</button>
+                            <button className="btn-main" onClick={()=>finalize('WESTERN UNION')}>🏦 WESTERN UNION</button>
                         </div>
                     )}
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
