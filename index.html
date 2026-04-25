@@ -9,25 +9,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #39ff14; --dark: #0a0a0a; }
-        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 10px; }
-        .main-card { background: rgba(0,0,0,0.95); border: 2px solid var(--neon); border-radius: 25px; padding: 25px; box-shadow: 0 0 30px rgba(57,255,20,0.15); text-align: center; }
-        .logo-header { font-family: 'Rajdhani'; font-size: 28px; color: var(--neon); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid rgba(57,255,20,0.2); padding-bottom: 10px; }
-        
-        /* Área de Carga Visual */
-        .upload-zone { border: 2px dashed rgba(57,255,20,0.4); border-radius: 20px; padding: 30px 15px; background: rgba(57,255,20,0.03); margin-bottom: 20px; transition: 0.3s; }
-        .instruction-text { font-family: 'Rajdhani'; font-size: 20px; color: var(--neon); margin-bottom: 10px; }
-        .sub-text { font-size: 14px; color: #888; margin-bottom: 20px; line-height: 1.4; }
-
-        /* Botones de Acción */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-upload { background: #111; border: 1px solid var(--neon); color: #fff; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-upload:active { background: var(--neon); color: #000; }
-        .btn-primary { grid-column: span 2; background: var(--neon); color: #000; border: none; font-family: 'Rajdhani'; font-weight: 700; font-size: 18px; box-shadow: 0 5px 15px rgba(57,255,20,0.3); margin-top: 10px; }
-
-        /* Scanner Animation */
+        :root { --neon: #39ff14; --premium: #ffd700; --dark: rgba(0,0,0,0.98); }
+        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 5px; }
+        .app-card { background: var(--dark); border: 2px solid var(--neon); border-radius: 20px; padding: 18px; box-shadow: 0 0 25px rgba(57,255,20,0.3); max-width: 450px; margin: 0 auto; }
+        .logo { font-family: 'Rajdhani'; font-size: 26px; color: var(--neon); text-align: center; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
+        .q-title { color: var(--neon); font-family: 'Rajdhani'; font-size: 19px; text-align: center; margin-bottom: 15px; }
+        .btn-opt { width: 100%; padding: 14px; margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--neon); background: transparent; color: #fff; font-weight: 600; cursor: pointer; text-align: left; font-size: 14px; }
+        .btn-premium { border-color: var(--premium); color: var(--premium); background: rgba(255,215,0,0.05); }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .input-text { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--neon); background: #0a0a0a; color: #fff; margin-bottom: 8px; font-size: 13px; box-sizing: border-box; }
+        .full { grid-column: span 2; }
+        .btn-final { background: var(--neon); color: #000; border: none; font-weight: 700; width: 100%; padding: 18px; border-radius: 12px; font-size: 17px; margin-top: 10px; cursor: pointer; text-transform: uppercase; }
         .scanner-wrap { position: relative; width: 100%; height: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--neon); }
-        .scan-bar { width: 100%; height: 3px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scanning 2s linear infinite; z-index: 5; }
+        .scan-bar { width: 100%; height: 3px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scanning 2s linear infinite; }
         @keyframes scanning { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
 </head>
@@ -35,11 +29,11 @@
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useRef } = React;
-        const RAILWAY_URL = "https://carmat-server-production.up.railway.app/analyze";
 
         function App() {
             const [step, setStep] = useState('home');
             const [image, setImage] = useState(null);
+            const [form, setForm] = useState({});
             const fileInput = useRef();
 
             const onFileSelect = (e) => {
@@ -47,70 +41,105 @@
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    setImage({ preview: ev.target.result, base64: ev.target.result.split(',')[1], mime: file.type });
+                    setImage(ev.target.result);
                     setStep('scanning');
-                    autoAnalyze(ev.target.result.split(',')[1], file.type);
+                    setTimeout(() => setStep('q1'), 3000); // Simulación de escaneo veloz
                 };
                 reader.readAsDataURL(file);
             };
 
-            const autoAnalyze = async (base64, mime) => {
-                try {
-                    const res = await fetch(RAILWAY_URL, {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ image: base64, mimeType: mime })
-                    });
-                    // Aquí el sistema absorbe la información del auto (marca, modelo, etc)
-                    setStep('questions'); 
-                } catch (e) { setStep('questions'); }
+            const next = (field, val, nextStep) => {
+                setForm({...form, [field]: val});
+                setStep(nextStep);
+            };
+
+            const sendWA = (payMethod) => {
+                const text = `PEDIDO CAR MATS 29:
+                - Detalle: ${form.seats}, ${form.usage}
+                - Envío: ${form.shipping}
+                - Cliente: ${form.name} ${form.last}
+                - Dirección: ${form.addr}, ${form.city}, ${form.country}
+                - Pago: ${payMethod}`;
+                window.open(`https://wa.me/50764426565?text=${encodeURIComponent(text)}`);
             };
 
             return (
-                <div className="main-card">
-                    <div className="logo-header">CAR MATS 29</div>
+                <div className="app-card">
+                    <div className="logo">CAR MATS 29</div>
 
                     {step === 'home' && (
-                        <div>
-                            <div className="upload-zone">
-                                <div style={{fontSize: '50px', marginBottom: '10px'}}>🚘</div>
-                                <div className="instruction-text">ESCANEO IA DE VEHÍCULO</div>
-                                <div className="sub-text">Sube una foto para que nuestra IA identifique tu modelo y personalice tus alfombras 5D.</div>
-                                
-                                <div className="action-grid">
-                                    <button className="btn-upload" onClick={() => fileInput.current.click()}>
-                                        <span>📂 GALERÍA</span>
-                                    </button>
-                                    <button className="btn-upload" onClick={() => fileInput.current.click()}>
-                                        <span>📸 CÁMARA</span>
-                                    </button>
-                                    <input type="file" ref={fileInput} hidden accept="image/*" onChange={onFileSelect} />
-                                </div>
-                            </div>
+                        <div style={{textAlign:'center'}}>
+                            <div style={{fontSize: '50px', marginBottom: '10px'}}>📸</div>
+                            <div className="q-title">ESCANEO IA DE VEHÍCULO</div>
+                            <p style={{fontSize:'13px', color:'#888', marginBottom:'20px'}}>Sube una foto para identificar tu modelo y personalizar tus alfombras 5D.</p>
+                            <button className="btn-final" onClick={() => fileInput.current.click()}>SELECCIONAR FOTO</button>
+                            <input type="file" ref={fileInput} hidden accept="image/*" onChange={onFileSelect} />
                         </div>
                     )}
 
                     {step === 'scanning' && (
-                        <div>
-                            <div className="instruction-text">IDENTIFICANDO MODELO...</div>
+                        <div style={{textAlign:'center'}}>
+                            <div className="q-title">ANALIZANDO VEHÍCULO...</div>
                             <div className="scanner-wrap">
-                                <img src={image?.preview} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                                <img src={image} style={{width:'100%', height:'100%', objectFit:'cover'}} />
                                 <div className="scan-bar"></div>
                             </div>
-                            <p style={{color: var(--neon), marginTop: '15px', fontSize: '12px'}}>EXTRAYENDO DATOS TÉCNICOS...</p>
                         </div>
                     )}
 
-                    {step === 'questions' && (
-                        <div style={{padding: '20px 0'}}>
-                            <div className="instruction-text" style={{color: '#fff'}}>¡VEHÍCULO DETECTADO!</div>
-                            <p>Iniciando configuración de fabricación...</p>
-                            {/* Aquí siguen las preguntas de asientos, envío, etc. */}
+                    {step === 'q1' && (
+                        <div>
+                            <div className="q-title">¿Capacidad de Asientos?</div>
+                            <button className="btn-opt" onClick={()=>next('seats', '2 Asientos', 'q2')}>2 Pasajeros</button>
+                            <button className="btn-opt" onClick={()=>next('seats', '5 Asientos ($290+)', 'q2')}>5 Pasajeros ($290+)</button>
+                            <button className="btn-opt" onClick={()=>next('seats', '7 Asientos', 'q2')}>7 Pasajeros</button>
+                            <button className="btn-opt" onClick={()=>next('seats', '9-15 Asientos', 'q2')}>9-15 Pasajeros</button>
+                        </div>
+                    )}
+
+                    {step === 'q2' && (
+                        <div>
+                            <div className="q-title">¿Uso del Vehículo?</div>
+                            <button className="btn-opt" onClick={()=>next('usage', 'Familiar', 'q3')}>Familiar / Niños / Mascotas</button>
+                            <button className="btn-opt" onClick={()=>next('usage', 'Trabajo', 'q3')}>Trabajo / Carga</button>
+                            <button className="btn-opt" onClick={()=>next('usage', 'Mixto', 'q3')}>Ambos</button>
+                        </div>
+                    )}
+
+                    {step === 'q3' && (
+                        <div>
+                            <div className="q-title">Método de Envío</div>
+                            <button className="btn-opt btn-premium" onClick={()=>next('shipping', 'PREMIUM GRATIS', 'address')}>🚀 PREMIUM GRATIS (5-10 días)</button>
+                            <button className="btn-opt" onClick={()=>next('shipping', 'Aéreo $10/kg', 'address')}>✈️ AÉREO (5-10 días)</button>
+                            <button className="btn-opt" onClick={()=>next('shipping', 'Marítimo $4.40/kg', 'address')}>🚢 MARÍTIMO (25-30 días)</button>
+                        </div>
+                    )}
+
+                    {step === 'address' && (
+                        <div className="input-grid">
+                            <div className="q-title full">Datos de Entrega</div>
+                            <input className="input-text" placeholder="Nombre" onChange={e=>setForm({...form, name: e.target.value})} />
+                            <input className="input-text" placeholder="Apellido" onChange={e=>setForm({...form, last: e.target.value})} />
+                            <input className="input-text" placeholder="País" onChange={e=>setForm({...form, country: e.target.value})} />
+                            <input className="input-text" placeholder="Ciudad" onChange={e=>setForm({...form, city: e.target.value})} />
+                            <input className="input-text full" placeholder="Dirección Exacta" onChange={e=>setForm({...form, addr: e.target.value})} />
+                            <button className="btn-final full" onClick={()=>setStep('pay')}>CONTINUAR</button>
+                        </div>
+                    )}
+
+                    {step === 'pay' && (
+                        <div style={{textAlign:'center'}}>
+                            <div className="q-title">Finalizar Pedido</div>
+                            <button className="btn-final" style={{background:'#fff'}} onClick={()=>sendWA('TARJETA/ACH')}>💳 PAGO DIGITAL</button>
+                            <button className="btn-final" onClick={()=>sendWA('WESTERN UNION')}>🏦 WESTERN UNION</button>
                         </div>
                     )}
                 </div>
             );
         }
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
