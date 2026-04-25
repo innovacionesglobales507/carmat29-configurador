@@ -3,48 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MATS 29 – IA GENERATIVA</title>
+    <title>CAR MATS 29 – IA COMMAND CENTER</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #39ff14; --dark: #020502; --panel: rgba(0, 20, 0, 0.85); --accent: #008800; }
-        body { background-color: var(--dark); background-image: radial-gradient(circle at 50% 50%, #0a220a 0%, var(--dark) 100%); color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 12px; min-height: 100vh; }
+        :root { --neon: #39ff14; --dark: #000; --panel: rgba(15, 35, 15, 0.95); }
+        body { background: var(--dark); color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 8px; }
+        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 10px; }
+        .logo { font-family: 'Rajdhani'; font-size: 28px; color: var(--neon); text-transform: uppercase; margin: 0; letter-spacing: 3px; }
         
-        /* Header Compacto */
-        .header { text-align: center; border-bottom: 1px solid var(--neon); padding-bottom: 10px; margin-bottom: 15px; }
-        .logo { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: var(--neon); letter-spacing: 2px; text-shadow: 0 0 10px rgba(57,255,20,0.5); margin: 0; }
-        .tagline { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); }
-
-        /* Contenedor de la App */
-        .app-container { max-width: 450px; margin: 0 auto; }
-
-        /* Pantalla de carga tipo Scanner */
-        .scanner { position: relative; width: 100%; height: 250px; border: 1px solid var(--neon); border-radius: 15px; overflow: hidden; background: #000; }
-        .scan-line { width: 100%; height: 2px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scan 2s linear infinite; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-
-        /* Botones de acción nivel superior */
-        .btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; margin-top: 12px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-neon { background: var(--neon); color: #000; box-shadow: 0 0 20px rgba(57,255,20,0.3); }
+        /* Contenedores */
+        .app-card { background: var(--panel); border-radius: 15px; padding: 15px; border: 1px solid rgba(57,255,20,0.2); margin-bottom: 10px; }
+        
+        /* Botonera Múltiple */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn { padding: 14px; border-radius: 10px; border: none; font-family: 'Rajdhani'; font-weight: 700; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-neon { background: var(--neon); color: #000; box-shadow: 0 0 15px rgba(57,255,20,0.3); }
         .btn-outline { background: transparent; border: 1px solid var(--neon); color: var(--neon); }
+        .btn-full { width: 100%; margin-top: 10px; padding: 18px; font-size: 16px; }
 
-        /* Paneles de Información IA */
-        .ia-panel { background: var(--panel); border-radius: 15px; padding: 15px; border-left: 4px solid var(--neon); margin-top: 15px; animation: slideIn 0.5s ease-out; }
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; color: var(--neon); margin-bottom: 8px; border-bottom: 1px solid rgba(57,255,20,0.2); }
-        .panel-content { font-size: 13px; line-height: 1.5; color: #ccc; }
+        /* Chat Generativo */
+        .chat-container { border: 1px solid rgba(57,255,20,0.3); border-radius: 12px; background: rgba(0,0,0,0.5); padding: 10px; margin-top: 15px; }
+        .chat-box { height: 120px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; padding-right: 5px; border-bottom: 1px solid rgba(57,255,20,0.1); }
+        .chat-input-area { display: flex; gap: 5px; }
+        .chat-input { flex: 1; background: #111; border: 1px solid var(--neon); border-radius: 5px; color: #fff; padding: 10px; font-size: 14px; }
+        .chat-send { background: var(--neon); border: none; border-radius: 5px; padding: 0 15px; cursor: pointer; font-weight: bold; }
 
-        /* Grid de Datos Técnicos */
-        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .tech-box { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; font-size: 11px; }
-        .tech-label { display: block; color: var(--neon); font-weight: bold; font-size: 10px; }
+        /* Scanner */
+        .mini-scanner { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid var(--neon); }
+        .scan-anim { width: 100%; height: 2px; background: var(--neon); position: absolute; animation: scanMove 2s infinite; box-shadow: 0 0 10px var(--neon); }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* Acciones Finales */
-        .actions-bar { position: sticky; bottom: 10px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-wa { background: #25d366; color: #fff; padding: 15px; font-size: 14px; }
-        .btn-shop { background: #fff; color: #000; padding: 15px; font-size: 14px; }
+        .tech-pill { display: inline-block; background: rgba(57,255,20,0.1); border: 1px solid var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; margin: 2px; color: var(--neon); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -58,9 +50,11 @@
             const [image, setImage] = useState(null);
             const [data, setData] = useState(null);
             const [loading, setLoading] = useState(false);
-            const inputRef = useRef();
+            const [chat, setChat] = useState([{r: "¡Hola! Sube una foto de tu auto para iniciar."}]);
+            const [query, setQuery] = useState("");
+            const fileRef = useRef();
 
-            const handleFile = (e) => {
+            const handleUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
@@ -71,90 +65,79 @@
                 reader.readAsDataURL(file);
             };
 
-            const runIA = async () => {
-                setLoading(true);
-                setStep('loading');
+            const analyze = async () => {
+                setLoading(true); setStep('loading');
                 try {
                     const res = await fetch(RAILWAY_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        method: "POST", headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ image: image.base64, mimeType: image.mime })
                     });
-                    const result = await res.json();
-                    setData(result);
+                    const resData = await res.json();
+                    setData(resData);
+                    setChat([...chat, {q: "Análisis de imagen", r: resData.razon}]);
                     setStep('result');
-                } catch (e) {
-                    setData({ marca: "DETECTOR", modelo: "ACTIVO", razon: "Vehículo identificado. Procede a cotización personalizada.", año: "2024", color: "Detectado" });
-                    setStep('result');
-                } finally { setLoading(false); }
+                } catch (e) { setStep('result'); } finally { setLoading(false); }
+            };
+
+            const sendChat = () => {
+                if(!query) return;
+                setChat([...chat, {q: query, r: "Consultando disponibilidad y especificaciones técnicas para tu modelo..."}]);
+                setQuery("");
+                // Aquí se conectará la función de texto generativo en la siguiente fase
             };
 
             return (
-                <div className="app-container">
-                    <div className="header">
-                        <h1 className="logo">CAR MATS 29</h1>
-                        <div className="tagline">Inteligencia Artificial Automotriz</div>
-                    </div>
+                <div>
+                    <header className="header"><h1 className="logo">CAR MATS 29</h1></header>
 
                     {step === 'home' && (
-                        <div style={{textAlign:'center', marginTop: '40px'}}>
-                            <div style={{fontSize:'60px'}}>📸</div>
-                            <h2 style={{color: var(--neon)}}>ESCÁNER DE PRECISIÓN</h2>
-                            <p style={{fontSize:'14px', color:'#888'}}>Sube una foto para identificar el modelo y recibir recomendación de alfombras 5D.</p>
-                            <button className="btn btn-neon" onClick={() => inputRef.current.click()}>INICIAR ESCÁNER</button>
-                            <input type="file" ref={inputRef} hidden accept="image/*" onChange={handleFile} />
+                        <div className="app-card" style={{textAlign:'center'}}>
+                            <div style={{fontSize:'50px'}}>📸</div>
+                            <h2 style={{color: 'var(--neon)', margin: '10px 0'}}>TERMINAL IA</h2>
+                            <button className="btn btn-neon btn-full" onClick={() => fileRef.current.click()}>SELECCIONAR VEHÍCULO</button>
+                            <input type="file" ref={fileRef} hidden accept="image/*" onChange={handleUpload} />
                         </div>
                     )}
 
-                    {step === 'ready' && (
-                        <div>
-                            <div className="scanner">
+                    {(step === 'ready' || step === 'loading') && (
+                        <div className="app-card">
+                            <div className="mini-scanner">
                                 <img src={image.preview} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                                <div className="scan-line"></div>
+                                <div className="scan-anim"></div>
                             </div>
-                            <button className="btn btn-neon" onClick={runIA}>⚡ ANALIZAR MODELO</button>
-                            <button className="btn btn-outline" onClick={() => setStep('home')}>CANCELAR</button>
-                        </div>
-                    )}
-
-                    {step === 'loading' && (
-                        <div className="scanner">
-                            <div className="scan-line"></div>
-                            <div style={{position:'absolute', width:'100%', top:'45%', textAlign:'center', color: 'var(--neon)', fontWeight:'bold'}}>
-                                PROCESANDO VISIÓN...
-                            </div>
+                            {!loading && <button className="btn btn-neon btn-full" onClick={analyze}>⚡ INICIAR ESCANEO</button>}
                         </div>
                     )}
 
                     {step === 'result' && (
-                        <div className="result-view">
-                            <div style={{textAlign:'center'}}>
-                                <h2 style={{margin:0, color:'var(--neon)'}}>{data.marca} {data.modelo}</h2>
-                                <span style={{fontSize:'12px', color:'#aaa'}}>ANÁLISIS COMPLETADO EXITOSAMENTE</span>
-                            </div>
-
-                            <div className="tech-grid">
-                                <div className="tech-box"><span className="tech-label">AÑO ESTIMADO</span>{data.año || "2020-2024"}</div>
-                                <div className="tech-box"><span className="tech-label">IDENTIFICACIÓN</span>MILIMÉTRICA</div>
-                                <div className="tech-box"><span className="tech-label">MATERIAL RECOM.</span>TPE 5D WATERPROOF</div>
-                                <div className="tech-box"><span className="tech-label">ORIGEN</span>IMPORTADO</div>
-                            </div>
-
-                            <div className="ia-panel">
-                                <div className="panel-title">REPORTE GENERATIVO</div>
-                                <div className="panel-content">{data.razon}</div>
-                            </div>
-
-                            <div className="ia-panel" style={{borderLeftColor: '#fff'}}>
-                                <div className="panel-title">RECOMENDACIÓN CAR MATS 29</div>
-                                <div className="panel-content">
-                                    Para este {data.marca}, fabricamos alfombras con escaneo 3D que cubren el 99% de la superficie. El material TPE es inodoro, antideslizante y diseñado para el clima de Panamá.
+                        <div>
+                            <div className="app-card">
+                                <h3 style={{color: 'var(--neon)', margin: '0 0 10px 0'}}>{data?.marca} {data?.modelo}</h3>
+                                <div className="tech-pill">ESCANEO 3D ✅</div>
+                                <div className="tech-pill">TPE 5D PREMIUM</div>
+                                <div className="tech-pill">AJUSTE NATIVO</div>
+                                
+                                <div className="chat-container">
+                                    <div className="chat-box">
+                                        {chat.map((msg, i) => (
+                                            <div key={i} style={{marginBottom:'10px'}}>
+                                                {msg.q && <div style={{color: 'var(--neon)', fontSize: '11px'}}>TÚ: {msg.q}</div>}
+                                                <div style={{color: '#fff', fontSize: '13px'}}>IA: {msg.r}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="chat-input-area">
+                                        <input className="chat-input" placeholder="Pregunta a la IA..." value={query} onChange={(e)=>setQuery(e.target.value)} />
+                                        <button className="chat-send" onClick={sendChat}>➤</button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="actions-bar">
-                                <a href={`https://wa.me/507XXXXXXXX?text=Hola! Mi ${data.marca} ${data.modelo} fue escaneado. Quiero cotizar mis alfombras.`} className="btn btn-wa" style={{textDecoration:'none'}}>WHATSAPP</a>
-                                <button className="btn btn-shop" onClick={() => window.location.reload()}>REPETIR</button>
+                            <div className="btn-grid">
+                                <a href="https://wa.me/507XXXXXXXX" style={{textDecoration:'none'}}><button className="btn btn-neon btn-full" style={{background:'#25d366', color:'#fff'}}>💬 WHATSAPP</button></a>
+                                <button className="btn btn-outline" onClick={()=>window.location.reload()}>🔄 REPETIR</button>
+                                <button className="btn btn-outline">📂 CATÁLOGO</button>
+                                <button className="btn btn-outline">📞 LLAMAR</button>
                             </div>
                         </div>
                     )}
