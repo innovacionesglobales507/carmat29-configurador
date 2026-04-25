@@ -3,142 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MATS 29 – IA COMMAND CENTER</title>
+    <title>CAR MATS 29 - LOGÍSTICA GLOBAL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #39ff14; --dark: #000; --panel: rgba(15, 35, 15, 0.95); }
-        body { background: var(--dark); color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 8px; }
-        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 10px; }
-        .logo { font-family: 'Rajdhani'; font-size: 28px; color: var(--neon); text-transform: uppercase; margin: 0; letter-spacing: 3px; }
-        
-        /* Contenedores */
-        .app-card { background: var(--panel); border-radius: 15px; padding: 15px; border: 1px solid rgba(57,255,20,0.2); margin-bottom: 10px; }
-        
-        /* Botonera Múltiple */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn { padding: 14px; border-radius: 10px; border: none; font-family: 'Rajdhani'; font-weight: 700; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-neon { background: var(--neon); color: #000; box-shadow: 0 0 15px rgba(57,255,20,0.3); }
-        .btn-outline { background: transparent; border: 1px solid var(--neon); color: var(--neon); }
-        .btn-full { width: 100%; margin-top: 10px; padding: 18px; font-size: 16px; }
-
-        /* Chat Generativo */
-        .chat-container { border: 1px solid rgba(57,255,20,0.3); border-radius: 12px; background: rgba(0,0,0,0.5); padding: 10px; margin-top: 15px; }
-        .chat-box { height: 120px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; padding-right: 5px; border-bottom: 1px solid rgba(57,255,20,0.1); }
-        .chat-input-area { display: flex; gap: 5px; }
-        .chat-input { flex: 1; background: #111; border: 1px solid var(--neon); border-radius: 5px; color: #fff; padding: 10px; font-size: 14px; }
-        .chat-send { background: var(--neon); border: none; border-radius: 5px; padding: 0 15px; cursor: pointer; font-weight: bold; }
-
-        /* Scanner */
-        .mini-scanner { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid var(--neon); }
-        .scan-anim { width: 100%; height: 2px; background: var(--neon); position: absolute; animation: scanMove 2s infinite; box-shadow: 0 0 10px var(--neon); }
-        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
-
-        .tech-pill { display: inline-block; background: rgba(57,255,20,0.1); border: 1px solid var(--neon); padding: 4px 8px; border-radius: 5px; font-size: 10px; margin: 2px; color: var(--neon); font-weight: bold; }
+        :root { --neon: #39ff14; --premium: #ffd700; --dark: rgba(0,0,0,0.95); }
+        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 5px; }
+        .card { background: var(--dark); border: 2px solid var(--neon); border-radius: 20px; padding: 15px; box-shadow: 0 0 20px rgba(57,255,20,0.2); }
+        .q-title { color: var(--neon); font-family: 'Rajdhani'; font-size: 20px; text-align: center; margin-bottom: 15px; text-transform: uppercase; }
+        .btn-opt { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--neon); background: transparent; color: #fff; font-weight: 600; cursor: pointer; text-align: left; font-size: 13px; }
+        .btn-premium { border-color: var(--premium); color: var(--premium); background: rgba(255,215,0,0.1); }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .input-f { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--neon); background: #111; color: #fff; margin-bottom: 8px; font-size: 13px; box-sizing: border-box; }
+        .full { grid-column: span 2; }
+        .price-tag { float: right; color: var(--neon); font-weight: 700; }
+        .btn-buy { background: var(--neon); color: #000; border: none; font-weight: 700; width: 100%; padding: 18px; border-radius: 12px; font-size: 16px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        const { useState, useRef } = React;
-        const RAILWAY_URL = "https://carmat-server-production.up.railway.app/analyze";
+        const { useState } = React;
 
         function App() {
-            const [step, setStep] = useState('home');
-            const [image, setImage] = useState(null);
-            const [data, setData] = useState(null);
-            const [loading, setLoading] = useState(false);
-            const [chat, setChat] = useState([{r: "¡Hola! Sube una foto de tu auto para iniciar."}]);
-            const [query, setQuery] = useState("");
-            const fileRef = useRef();
+            const [step, setStep] = useState(0);
+            const [form, setForm] = useState({});
 
-            const handleUpload = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    setImage({ base64: ev.target.result.split(',')[1], preview: ev.target.result, mime: file.type });
-                    setStep('ready');
-                };
-                reader.readAsDataURL(file);
-            };
+            const next = (field, val) => { setForm({...form, [field]: val}); setStep(step + 1); };
 
-            const analyze = async () => {
-                setLoading(true); setStep('loading');
-                try {
-                    const res = await fetch(RAILWAY_URL, {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ image: image.base64, mimeType: image.mime })
-                    });
-                    const resData = await res.json();
-                    setData(resData);
-                    setChat([...chat, {q: "Análisis de imagen", r: resData.razon}]);
-                    setStep('result');
-                } catch (e) { setStep('result'); } finally { setLoading(false); }
-            };
+            const steps = [
+                { t: "Configuración de Asientos", f: "seats", opts: ["2 Pasajeros", "5 Pasajeros ($290+)", "7 Pasajeros", "9-15 Pasajeros"] },
+                { t: "Uso y Protección", f: "usage", opts: ["Familiar (Niños/Mascotas)", "Trabajo Pesado", "Premium / Exhibición"] },
+                { t: "Personalización", f: "label", opts: ["Nombre y Apellido", "Logo de Marca Original"] },
+                { t: "Método de Envío", f: "shipping", opts: [
+                    "🚀 LOGÍSTICA PREMIUM - GRATIS (5-10 días)",
+                    "✈️ AÉREO DDP - $10.00/kg (5-10 días)",
+                    "⚡ EXPRÉS - $15.00/kg (2-4 días)",
+                    "🚢 MARÍTIMO - $4.40/kg (25-30 días)"
+                ]},
+                { t: "Datos de Entrega", type: "address" },
+                { t: "Finalizar Pedido", type: "pay" }
+            ];
 
-            const sendChat = () => {
-                if(!query) return;
-                setChat([...chat, {q: query, r: "Consultando disponibilidad y especificaciones técnicas para tu modelo..."}]);
-                setQuery("");
-                // Aquí se conectará la función de texto generativo en la siguiente fase
+            const curr = steps[step];
+
+            const sendWA = (pay) => {
+                const text = `NUEVO PEDIDO CAR MATS 29:
+                - Modelo: ${form.seats}
+                - Uso: ${form.usage}
+                - Personalización: ${form.label}
+                - Envío: ${form.shipping}
+                - Cliente: ${form.name} (${form.dni})
+                - País: ${form.country}, ${form.city}
+                - Pago: ${pay}`;
+                window.open(`https://wa.me/50764426565?text=${encodeURIComponent(text)}`);
             };
 
             return (
-                <div>
-                    <header className="header"><h1 className="logo">CAR MATS 29</h1></header>
+                <div className="card">
+                    <div className="q-title">{curr.t}</div>
 
-                    {step === 'home' && (
-                        <div className="app-card" style={{textAlign:'center'}}>
-                            <div style={{fontSize:'50px'}}>📸</div>
-                            <h2 style={{color: 'var(--neon)', margin: '10px 0'}}>TERMINAL IA</h2>
-                            <button className="btn btn-neon btn-full" onClick={() => fileRef.current.click()}>SELECCIONAR VEHÍCULO</button>
-                            <input type="file" ref={fileRef} hidden accept="image/*" onChange={handleUpload} />
+                    {curr.opts && curr.opts.map(o => (
+                        <button key={o} className={`btn-opt ${o.includes('PREMIUM') ? 'btn-premium' : ''}`} onClick={() => next(curr.f, o)}>
+                            {o}
+                        </button>
+                    ))}
+
+                    {curr.type === "address" && (
+                        <div className="input-group">
+                            <input className="input-f" placeholder="Nombre" onChange={e => setForm({...form, name: e.target.value})} />
+                            <input className="input-f" placeholder="Apellido" onChange={e => setForm({...form, last: e.target.value})} />
+                            <input className="input-f full" placeholder="DNI / Identificación" onChange={e => setForm({...form, dni: e.target.value})} />
+                            <input className="input-f" placeholder="País" onChange={e => setForm({...form, country: e.target.value})} />
+                            <input className="input-f" placeholder="Ciudad" onChange={e => setForm({...form, city: e.target.value})} />
+                            <input className="input-f full" placeholder="Dirección Exacta" onChange={e => setForm({...form, address: e.target.value})} />
+                            <input className="input-f" placeholder="Teléfono" onChange={e => setForm({...form, phone: e.target.value})} />
+                            <input className="input-f" placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} />
+                            <button className="btn-buy full" onClick={() => setStep(step+1)}>GUARDAR DATOS</button>
                         </div>
                     )}
 
-                    {(step === 'ready' || step === 'loading') && (
-                        <div className="app-card">
-                            <div className="mini-scanner">
-                                <img src={image.preview} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                                <div className="scan-anim"></div>
-                            </div>
-                            {!loading && <button className="btn btn-neon btn-full" onClick={analyze}>⚡ INICIAR ESCANEO</button>}
-                        </div>
-                    )}
-
-                    {step === 'result' && (
+                    {curr.type === "pay" && (
                         <div>
-                            <div className="app-card">
-                                <h3 style={{color: 'var(--neon)', margin: '0 0 10px 0'}}>{data?.marca} {data?.modelo}</h3>
-                                <div className="tech-pill">ESCANEO 3D ✅</div>
-                                <div className="tech-pill">TPE 5D PREMIUM</div>
-                                <div className="tech-pill">AJUSTE NATIVO</div>
-                                
-                                <div className="chat-container">
-                                    <div className="chat-box">
-                                        {chat.map((msg, i) => (
-                                            <div key={i} style={{marginBottom:'10px'}}>
-                                                {msg.q && <div style={{color: 'var(--neon)', fontSize: '11px'}}>TÚ: {msg.q}</div>}
-                                                <div style={{color: '#fff', fontSize: '13px'}}>IA: {msg.r}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="chat-input-area">
-                                        <input className="chat-input" placeholder="Pregunta a la IA..." value={query} onChange={(e)=>setQuery(e.target.value)} />
-                                        <button className="chat-send" onClick={sendChat}>➤</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="btn-grid">
-                                <a href="https://wa.me/507XXXXXXXX" style={{textDecoration:'none'}}><button className="btn btn-neon btn-full" style={{background:'#25d366', color:'#fff'}}>💬 WHATSAPP</button></a>
-                                <button className="btn btn-outline" onClick={()=>window.location.reload()}>🔄 REPETIR</button>
-                                <button className="btn btn-outline">📂 CATÁLOGO</button>
-                                <button className="btn btn-outline">📞 LLAMAR</button>
-                            </div>
+                            <button className="btn-buy" style={{background: '#fff'}} onClick={() => sendWA('PLATAFORMA DIGITAL')}>💳 PAGAR EN PLATAFORMA</button>
+                            <button className="btn-buy" style={{marginTop: '10px'}} onClick={() => sendWA('WESTERN UNION')}>🏦 WESTERN UNION / OTROS</button>
+                            <p style={{fontSize: '10px', textAlign: 'center', color: '#888', marginTop: '10px'}}>Un asesor cerrará los detalles finales contigo por WhatsApp.</p>
                         </div>
                     )}
                 </div>
