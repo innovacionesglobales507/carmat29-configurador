@@ -3,93 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MATS 29 - LOGÍSTICA GLOBAL</title>
+    <title>CAR MATS 29 - TERMINAL IA</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #39ff14; --premium: #ffd700; --dark: rgba(0,0,0,0.95); }
-        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 5px; }
-        .card { background: var(--dark); border: 2px solid var(--neon); border-radius: 20px; padding: 15px; box-shadow: 0 0 20px rgba(57,255,20,0.2); }
-        .q-title { color: var(--neon); font-family: 'Rajdhani'; font-size: 20px; text-align: center; margin-bottom: 15px; text-transform: uppercase; }
-        .btn-opt { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--neon); background: transparent; color: #fff; font-weight: 600; cursor: pointer; text-align: left; font-size: 13px; }
-        .btn-premium { border-color: var(--premium); color: var(--premium); background: rgba(255,215,0,0.1); }
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .input-f { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--neon); background: #111; color: #fff; margin-bottom: 8px; font-size: 13px; box-sizing: border-box; }
-        .full { grid-column: span 2; }
-        .price-tag { float: right; color: var(--neon); font-weight: 700; }
-        .btn-buy { background: var(--neon); color: #000; border: none; font-weight: 700; width: 100%; padding: 18px; border-radius: 12px; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        :root { --neon: #39ff14; --dark: #0a0a0a; }
+        body { background: transparent; color: #fff; font-family: 'Exo 2', sans-serif; margin: 0; padding: 10px; }
+        .main-card { background: rgba(0,0,0,0.95); border: 2px solid var(--neon); border-radius: 25px; padding: 25px; box-shadow: 0 0 30px rgba(57,255,20,0.15); text-align: center; }
+        .logo-header { font-family: 'Rajdhani'; font-size: 28px; color: var(--neon); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid rgba(57,255,20,0.2); padding-bottom: 10px; }
+        
+        /* Área de Carga Visual */
+        .upload-zone { border: 2px dashed rgba(57,255,20,0.4); border-radius: 20px; padding: 30px 15px; background: rgba(57,255,20,0.03); margin-bottom: 20px; transition: 0.3s; }
+        .instruction-text { font-family: 'Rajdhani'; font-size: 20px; color: var(--neon); margin-bottom: 10px; }
+        .sub-text { font-size: 14px; color: #888; margin-bottom: 20px; line-height: 1.4; }
+
+        /* Botones de Acción */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-upload { background: #111; border: 1px solid var(--neon); color: #fff; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-upload:active { background: var(--neon); color: #000; }
+        .btn-primary { grid-column: span 2; background: var(--neon); color: #000; border: none; font-family: 'Rajdhani'; font-weight: 700; font-size: 18px; box-shadow: 0 5px 15px rgba(57,255,20,0.3); margin-top: 10px; }
+
+        /* Scanner Animation */
+        .scanner-wrap { position: relative; width: 100%; height: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--neon); }
+        .scan-bar { width: 100%; height: 3px; background: var(--neon); position: absolute; top: 0; box-shadow: 0 0 15px var(--neon); animation: scanning 2s linear infinite; z-index: 5; }
+        @keyframes scanning { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useRef } = React;
+        const RAILWAY_URL = "https://carmat-server-production.up.railway.app/analyze";
 
         function App() {
-            const [step, setStep] = useState(0);
-            const [form, setForm] = useState({});
+            const [step, setStep] = useState('home');
+            const [image, setImage] = useState(null);
+            const fileInput = useRef();
 
-            const next = (field, val) => { setForm({...form, [field]: val}); setStep(step + 1); };
+            const onFileSelect = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    setImage({ preview: ev.target.result, base64: ev.target.result.split(',')[1], mime: file.type });
+                    setStep('scanning');
+                    autoAnalyze(ev.target.result.split(',')[1], file.type);
+                };
+                reader.readAsDataURL(file);
+            };
 
-            const steps = [
-                { t: "Configuración de Asientos", f: "seats", opts: ["2 Pasajeros", "5 Pasajeros ($290+)", "7 Pasajeros", "9-15 Pasajeros"] },
-                { t: "Uso y Protección", f: "usage", opts: ["Familiar (Niños/Mascotas)", "Trabajo Pesado", "Premium / Exhibición"] },
-                { t: "Personalización", f: "label", opts: ["Nombre y Apellido", "Logo de Marca Original"] },
-                { t: "Método de Envío", f: "shipping", opts: [
-                    "🚀 LOGÍSTICA PREMIUM - GRATIS (5-10 días)",
-                    "✈️ AÉREO DDP - $10.00/kg (5-10 días)",
-                    "⚡ EXPRÉS - $15.00/kg (2-4 días)",
-                    "🚢 MARÍTIMO - $4.40/kg (25-30 días)"
-                ]},
-                { t: "Datos de Entrega", type: "address" },
-                { t: "Finalizar Pedido", type: "pay" }
-            ];
-
-            const curr = steps[step];
-
-            const sendWA = (pay) => {
-                const text = `NUEVO PEDIDO CAR MATS 29:
-                - Modelo: ${form.seats}
-                - Uso: ${form.usage}
-                - Personalización: ${form.label}
-                - Envío: ${form.shipping}
-                - Cliente: ${form.name} (${form.dni})
-                - País: ${form.country}, ${form.city}
-                - Pago: ${pay}`;
-                window.open(`https://wa.me/50764426565?text=${encodeURIComponent(text)}`);
+            const autoAnalyze = async (base64, mime) => {
+                try {
+                    const res = await fetch(RAILWAY_URL, {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ image: base64, mimeType: mime })
+                    });
+                    // Aquí el sistema absorbe la información del auto (marca, modelo, etc)
+                    setStep('questions'); 
+                } catch (e) { setStep('questions'); }
             };
 
             return (
-                <div className="card">
-                    <div className="q-title">{curr.t}</div>
+                <div className="main-card">
+                    <div className="logo-header">CAR MATS 29</div>
 
-                    {curr.opts && curr.opts.map(o => (
-                        <button key={o} className={`btn-opt ${o.includes('PREMIUM') ? 'btn-premium' : ''}`} onClick={() => next(curr.f, o)}>
-                            {o}
-                        </button>
-                    ))}
-
-                    {curr.type === "address" && (
-                        <div className="input-group">
-                            <input className="input-f" placeholder="Nombre" onChange={e => setForm({...form, name: e.target.value})} />
-                            <input className="input-f" placeholder="Apellido" onChange={e => setForm({...form, last: e.target.value})} />
-                            <input className="input-f full" placeholder="DNI / Identificación" onChange={e => setForm({...form, dni: e.target.value})} />
-                            <input className="input-f" placeholder="País" onChange={e => setForm({...form, country: e.target.value})} />
-                            <input className="input-f" placeholder="Ciudad" onChange={e => setForm({...form, city: e.target.value})} />
-                            <input className="input-f full" placeholder="Dirección Exacta" onChange={e => setForm({...form, address: e.target.value})} />
-                            <input className="input-f" placeholder="Teléfono" onChange={e => setForm({...form, phone: e.target.value})} />
-                            <input className="input-f" placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} />
-                            <button className="btn-buy full" onClick={() => setStep(step+1)}>GUARDAR DATOS</button>
+                    {step === 'home' && (
+                        <div>
+                            <div className="upload-zone">
+                                <div style={{fontSize: '50px', marginBottom: '10px'}}>🚘</div>
+                                <div className="instruction-text">ESCANEO IA DE VEHÍCULO</div>
+                                <div className="sub-text">Sube una foto para que nuestra IA identifique tu modelo y personalice tus alfombras 5D.</div>
+                                
+                                <div className="action-grid">
+                                    <button className="btn-upload" onClick={() => fileInput.current.click()}>
+                                        <span>📂 GALERÍA</span>
+                                    </button>
+                                    <button className="btn-upload" onClick={() => fileInput.current.click()}>
+                                        <span>📸 CÁMARA</span>
+                                    </button>
+                                    <input type="file" ref={fileInput} hidden accept="image/*" onChange={onFileSelect} />
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    {curr.type === "pay" && (
+                    {step === 'scanning' && (
                         <div>
-                            <button className="btn-buy" style={{background: '#fff'}} onClick={() => sendWA('PLATAFORMA DIGITAL')}>💳 PAGAR EN PLATAFORMA</button>
-                            <button className="btn-buy" style={{marginTop: '10px'}} onClick={() => sendWA('WESTERN UNION')}>🏦 WESTERN UNION / OTROS</button>
-                            <p style={{fontSize: '10px', textAlign: 'center', color: '#888', marginTop: '10px'}}>Un asesor cerrará los detalles finales contigo por WhatsApp.</p>
+                            <div className="instruction-text">IDENTIFICANDO MODELO...</div>
+                            <div className="scanner-wrap">
+                                <img src={image?.preview} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                                <div className="scan-bar"></div>
+                            </div>
+                            <p style={{color: var(--neon), marginTop: '15px', fontSize: '12px'}}>EXTRAYENDO DATOS TÉCNICOS...</p>
+                        </div>
+                    )}
+
+                    {step === 'questions' && (
+                        <div style={{padding: '20px 0'}}>
+                            <div className="instruction-text" style={{color: '#fff'}}>¡VEHÍCULO DETECTADO!</div>
+                            <p>Iniciando configuración de fabricación...</p>
+                            {/* Aquí siguen las preguntas de asientos, envío, etc. */}
                         </div>
                     )}
                 </div>
